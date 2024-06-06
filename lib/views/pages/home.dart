@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +16,31 @@ class homepage extends StatefulWidget {
 class _homepageState extends State<homepage> {
   Authclass authclass = Authclass();
 
+  Stream<List<Map<String, dynamic>>> _getTasks() {
+    return FirebaseFirestore.instance
+        .collection('ToDoCC')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'title': doc['title'],
+                'description': doc['description'],
+                'dateTime': (doc['dateTime'] as Timestamp).toDate(),
+              })
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("PriorityPal", style: TextStyle(fontWeight: FontWeight.bold),),
+        title: Text(
+          "PriorityPal",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         actions: [
           IconButton(
@@ -84,27 +104,49 @@ class _homepageState extends State<homepage> {
             ),
             SizedBox(height: 5),
             Row(
-              children: [Expanded(child: DatePicker(
-                DateTime.now(),
-                height: 100,
-                width: 60,
-                initialSelectedDate: DateTime.now(),
-                selectionColor: Color.fromRGBO(138, 43, 226, 1),
-                selectedTextColor: Colors.white,
-                dateTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey),
-              ))],
+              children: [
+                Expanded(
+                    child: DatePicker(
+                  DateTime.now(),
+                  height: 100,
+                  width: 60,
+                  initialSelectedDate: DateTime.now(),
+                  selectionColor: Color.fromRGBO(138, 43, 226, 1),
+                  selectedTextColor: Colors.white,
+                  dateTextStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey),
+                ))
+              ],
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildTaskItem('Project retrospective', '4:50 PM'),
-                  _buildTaskItem('Evening team meeting', '4:50 PM'),
-                  _buildTaskItem('Create monthly deck', 'Today'),
-                  _buildTaskItem('Shop for groceries', '6:00 PM',
-                      subtasks: ['Pick up bag', 'Rice', 'Meat']),
-                
-                ],
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _getTasks(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No tasks available'));
+                  } else {
+                    List<Map<String, dynamic>> tasks = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> task = tasks[index];
+                        return _buildTaskItem(
+                          task['title'],
+                          DateFormat('hh:mm a').format(task['dateTime']),
+                          DateFormat('yMd').format(task['dateTime']),
+                          description: task['description'],
+                        );
+                      },
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -113,55 +155,29 @@ class _homepageState extends State<homepage> {
     );
   }
 
-  // Widget _buildStatusCard(String title, String count, Color color) {
-  //   return Container(
-  //     width: 80,
-  //     height: 80,
-  //     decoration: BoxDecoration(
-  //       color: color.withOpacity(0.2),
-  //       borderRadius: BorderRadius.circular(15.0),
-  //     ),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         Text(
-  //           count,
-  //           style: TextStyle(
-  //             fontSize: 24.0,
-  //             color: color,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //         SizedBox(height: 5),
-  //         Text(
-  //           title,
-  //           style: TextStyle(fontSize: 16.0, color: color),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _buildTaskItem(String title, String time, {List<String>? subtasks}) {
+  Widget _buildTaskItem(String title, String date, String time,
+      {String? description}) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         leading: Icon(Icons.radio_button_unchecked),
         title: Text(title),
-        subtitle: subtasks != null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(time),
-                  SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        subtasks.map((subtask) => Text('- $subtask')).toList(),
-                  ),
-                ],
-              )
-            : Text(time),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(date),
+                Text(" at "),
+                Text(time)
+              ],
+            ),
+            if (description != null) ...[
+              SizedBox(height: 5),
+              Text(description),
+            ]
+          ],
+        ),
         trailing: Icon(Icons.more_vert),
       ),
     );
