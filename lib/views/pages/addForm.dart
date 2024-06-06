@@ -60,7 +60,10 @@ class _AddFormState extends State<AddForm> {
         'dateTime': Timestamp.fromDate(taskDateTime),
       });
 
-      Navigator.pop(context);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (builder) => homepage()),
+          (route) => false);
     }
   }
 

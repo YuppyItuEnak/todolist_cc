@@ -15,6 +15,7 @@ class homepage extends StatefulWidget {
 
 class _homepageState extends State<homepage> {
   Authclass authclass = Authclass();
+  DateTime _selectedDate = DateTime.now();
 
   Stream<List<Map<String, dynamic>>> _getTasks() {
     return FirebaseFirestore.instance
@@ -30,6 +31,15 @@ class _homepageState extends State<homepage> {
               })
           .toList();
     });
+  }
+
+  List<Map<String, dynamic>> _filterTasks(List<Map<String, dynamic>> tasks) {
+    return tasks.where((task) {
+      DateTime taskDate = task['dateTime'];
+      return taskDate.year == _selectedDate.year &&
+             taskDate.month == _selectedDate.month &&
+             taskDate.day == _selectedDate.day;
+    }).toList();
   }
 
   @override
@@ -110,13 +120,18 @@ class _homepageState extends State<homepage> {
                   DateTime.now(),
                   height: 100,
                   width: 60,
-                  initialSelectedDate: DateTime.now(),
+                  initialSelectedDate: _selectedDate,
                   selectionColor: Color.fromRGBO(138, 43, 226, 1),
                   selectedTextColor: Colors.white,
                   dateTextStyle: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey),
+                  onDateChange: (date) {
+                    setState(() {
+                      _selectedDate = date;
+                    });
+                  },
                 ))
               ],
             ),
@@ -132,15 +147,15 @@ class _homepageState extends State<homepage> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text('No tasks available'));
                   } else {
-                    List<Map<String, dynamic>> tasks = snapshot.data!;
+                    List<Map<String, dynamic>> tasks = _filterTasks(snapshot.data!);
                     return ListView.builder(
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
                         Map<String, dynamic> task = tasks[index];
                         return _buildTaskItem(
                           task['title'],
+                          DateFormat('yyyy, MMM d').format(task['dateTime']),
                           DateFormat('hh:mm a').format(task['dateTime']),
-                          DateFormat('yMd').format(task['dateTime']),
                           description: task['description'],
                         );
                       },
@@ -166,11 +181,7 @@ class _homepageState extends State<homepage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: [
-                Text(date),
-                Text(" at "),
-                Text(time)
-              ],
+              children: [Text(date), Text(" at "), Text(time)],
             ),
             if (description != null) ...[
               SizedBox(height: 5),
