@@ -19,6 +19,8 @@ class _homepageState extends State<homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        title: Text("PriorityPal", style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: Colors.white,
         actions: [
           IconButton(
@@ -101,10 +103,7 @@ class _homepageState extends State<homepage> {
                   _buildTaskItem('Create monthly deck', 'Today'),
                   _buildTaskItem('Shop for groceries', '6:00 PM',
                       subtasks: ['Pick up bag', 'Rice', 'Meat']),
-                  _buildTaskItem('Read book', '10:30 PM'),
-                  _buildTaskItem('Study', '10:30 PM'),
-                  _buildTaskItem('Read book', '10:30 PM'),
-                  _buildTaskItem('Read book', '10:30 PM'),
+                
                 ],
               ),
             ),
