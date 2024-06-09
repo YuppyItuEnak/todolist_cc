@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todolist_cc/views/pages/home.dart';
@@ -46,24 +46,31 @@ class _AddFormState extends State<AddForm> {
 
   Future<void> _saveTask() async {
     if (_formKey.currentState!.validate()) {
-      final DateTime taskDateTime = DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        _selectedTime.hour,
-        _selectedTime.minute,
-      );
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final DateTime taskDateTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          _selectedTime.hour,
+          _selectedTime.minute,
+        );
 
-      await FirebaseFirestore.instance.collection('ToDoCC').add({
-        'title': _titleController.text,
-        'description': _descController.text,
-        'dateTime': Timestamp.fromDate(taskDateTime),
-      });
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .collection('Tasks')
+            .add({
+          'title': _titleController.text,
+          'description': _descController.text,
+          'dateTime': Timestamp.fromDate(taskDateTime),
+        });
 
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (builder) => homepage()),
-          (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (builder) => homepage()),
+            (route) => false);
+      }
     }
   }
 

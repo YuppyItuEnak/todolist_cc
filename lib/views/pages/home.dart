@@ -3,6 +3,7 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:todolist_cc/services/Auth_Service.dart';
+import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
 
@@ -16,22 +17,7 @@ class homepage extends StatefulWidget {
 class _homepageState extends State<homepage> {
   Authclass authclass = Authclass();
   DateTime _selectedDate = DateTime.now();
-
-  Stream<List<Map<String, dynamic>>> _getTasks() {
-    return FirebaseFirestore.instance
-        .collection('ToDoCC')
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => {
-                'id': doc.id,
-                'title': doc['title'],
-                'description': doc['description'],
-                'dateTime': (doc['dateTime'] as Timestamp).toDate(),
-              })
-          .toList();
-    });
-  }
+  TaskService taskService = TaskService();
 
   List<Map<String, dynamic>> _filterTasks(List<Map<String, dynamic>> tasks) {
     return tasks.where((task) {
@@ -78,11 +64,10 @@ class _homepageState extends State<homepage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        DateFormat.yMMMMd().format(DateTime.now()),
+                        DateFormat.yMMMMd().format(_selectedDate),
                         style: TextStyle(fontSize: 20, color: Colors.grey),
                       ),
-                      Text(
-                        "Today's Task",
+                      Text( "Today's Task",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 22),
                       )
@@ -121,75 +106,93 @@ class _homepageState extends State<homepage> {
                   height: 100,
                   width: 60,
                   initialSelectedDate: _selectedDate,
-                  selectionColor: Color.fromRGBO(138, 43, 226, 1),
+                  selectionColor: Colors.teal,
                   selectedTextColor: Colors.white,
                   dateTextStyle: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey),
+                      fontSize: 20, fontWeight: FontWeight.w600),
+                  dayTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  monthTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   onDateChange: (date) {
                     setState(() {
                       _selectedDate = date;
                     });
                   },
-                ))
+                )),
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Expanded(
-              child: StreamBuilder<List<Map<String, dynamic>>>(
-                stream: _getTasks(),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: taskService.getTasks(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No tasks available'));
-                  } else {
-                    List<Map<String, dynamic>> tasks = _filterTasks(snapshot.data!);
-                    return ListView.builder(
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> task = tasks[index];
-                        return _buildTaskItem(
-                          task['title'],
-                          DateFormat('yyyy, MMM d').format(task['dateTime']),
-                          DateFormat('hh:mm a').format(task['dateTime']),
-                          description: task['description'],
-                        );
-                      },
-                    );
                   }
+                  if (!snapshot.hasData) {
+                    return Center(child: Text('No tasks found', style: TextStyle(color: Colors.black),));
+                  }
+                  final tasks = snapshot.data!.docs.map((doc) {
+                    return {
+                      'title': doc['title'],
+                      'description': doc['description'],
+                      'dateTime': (doc['dateTime'] as Timestamp).toDate(),
+                    };
+                  }).toList();
+
+                  final filteredTasks = _filterTasks(tasks);
+
+                  return ListView.builder(
+                    itemCount: filteredTasks.length,
+                    itemBuilder: (context, index) {
+                      final task = filteredTasks[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.blueAccent,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                task['title'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                task['description'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                DateFormat.yMMMMd()
+                                    .add_jm()
+                                    .format(task['dateTime']),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTaskItem(String title, String date, String time,
-      {String? description}) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        leading: Icon(Icons.radio_button_unchecked),
-        title: Text(title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [Text(date), Text(" at "), Text(time)],
-            ),
-            if (description != null) ...[
-              SizedBox(height: 5),
-              Text(description),
-            ]
-          ],
-        ),
-        trailing: Icon(Icons.more_vert),
       ),
     );
   }
