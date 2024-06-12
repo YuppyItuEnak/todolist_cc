@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:todolist_cc/services/Auth_Service.dart';
+import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
 
@@ -14,11 +16,27 @@ class homepage extends StatefulWidget {
 
 class _homepageState extends State<homepage> {
   Authclass authclass = Authclass();
+  DateTime _selectedDate = DateTime.now();
+  TaskService taskService = TaskService();
+
+  List<Map<String, dynamic>> _filterTasks(List<Map<String, dynamic>> tasks) {
+    return tasks.where((task) {
+      DateTime taskDate = task['dateTime'];
+      return taskDate.year == _selectedDate.year &&
+             taskDate.month == _selectedDate.month &&
+             taskDate.day == _selectedDate.day;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "PriorityPal",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         actions: [
           IconButton(
@@ -46,11 +64,10 @@ class _homepageState extends State<homepage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        DateFormat.yMMMMd().format(DateTime.now()),
+                        DateFormat.yMMMMd().format(_selectedDate),
                         style: TextStyle(fontSize: 20, color: Colors.grey),
                       ),
-                      Text(
-                        "Today's Task",
+                      Text( "Today's Task",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 22),
                       )
@@ -61,7 +78,7 @@ class _homepageState extends State<homepage> {
                   onTap: () {
                     Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (builder) => addForm()),
+                        MaterialPageRoute(builder: (builder) => AddForm()),
                         (route) => false);
                   },
                   child: Container(
@@ -82,88 +99,100 @@ class _homepageState extends State<homepage> {
             ),
             SizedBox(height: 5),
             Row(
-              children: [Expanded(child: DatePicker(
-                DateTime.now(),
-                height: 100,
-                width: 60,
-                initialSelectedDate: DateTime.now(),
-                selectionColor: Color.fromRGBO(138, 43, 226, 1),
-                selectedTextColor: Colors.white,
-                dateTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey),
-              ))],
+              children: [
+                Expanded(
+                    child: DatePicker(
+                  DateTime.now(),
+                  height: 100,
+                  width: 60,
+                  initialSelectedDate: _selectedDate,
+                  selectionColor: Colors.teal,
+                  selectedTextColor: Colors.white,
+                  dateTextStyle: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w600),
+                  dayTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  monthTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  onDateChange: (date) {
+                    setState(() {
+                      _selectedDate = date;
+                    });
+                  },
+                )),
+              ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildTaskItem('Project retrospective', '4:50 PM'),
-                  _buildTaskItem('Evening team meeting', '4:50 PM'),
-                  _buildTaskItem('Create monthly deck', 'Today'),
-                  _buildTaskItem('Shop for groceries', '6:00 PM',
-                      subtasks: ['Pick up bag', 'Rice', 'Meat']),
-                  _buildTaskItem('Read book', '10:30 PM'),
-                  _buildTaskItem('Study', '10:30 PM'),
-                  _buildTaskItem('Read book', '10:30 PM'),
-                  _buildTaskItem('Read book', '10:30 PM'),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                stream: taskService.getTasks(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData) {
+                    return Center(child: Text('No tasks found', style: TextStyle(color: Colors.black),));
+                  }
+                  final tasks = snapshot.data!.docs.map((doc) {
+                    return {
+                      'title': doc['title'],
+                      'description': doc['description'],
+                      'dateTime': (doc['dateTime'] as Timestamp).toDate(),
+                    };
+                  }).toList();
+
+                  final filteredTasks = _filterTasks(tasks);
+
+                  return ListView.builder(
+                    itemCount: filteredTasks.length,
+                    itemBuilder: (context, index) {
+                      final task = filteredTasks[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.blueAccent,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                task['title'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                task['description'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                DateFormat.yMMMMd()
+                                    .add_jm()
+                                    .format(task['dateTime']),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // Widget _buildStatusCard(String title, String count, Color color) {
-  //   return Container(
-  //     width: 80,
-  //     height: 80,
-  //     decoration: BoxDecoration(
-  //       color: color.withOpacity(0.2),
-  //       borderRadius: BorderRadius.circular(15.0),
-  //     ),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         Text(
-  //           count,
-  //           style: TextStyle(
-  //             fontSize: 24.0,
-  //             color: color,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //         SizedBox(height: 5),
-  //         Text(
-  //           title,
-  //           style: TextStyle(fontSize: 16.0, color: color),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _buildTaskItem(String title, String time, {List<String>? subtasks}) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        leading: Icon(Icons.radio_button_unchecked),
-        title: Text(title),
-        subtitle: subtasks != null
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(time),
-                  SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        subtasks.map((subtask) => Text('- $subtask')).toList(),
-                  ),
-                ],
-              )
-            : Text(time),
-        trailing: Icon(Icons.more_vert),
       ),
     );
   }
