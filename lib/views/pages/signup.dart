@@ -23,17 +23,18 @@ class _signupState extends State<signup> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.black,
+          color: Colors.white,
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Image.asset('assets/bear_icon.png', height: 100, width: 100),
               Text(
                 "Sign Up",
                 style: TextStyle(
                     fontSize: 35,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold),
               ),
               SizedBox(
@@ -47,7 +48,7 @@ class _signupState extends State<signup> {
                   width: MediaQuery.of(context).size.width - 60,
                   height: 60,
                   child: Card(
-                    color: Colors.black,
+                    color: Colors.white,
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -59,8 +60,8 @@ class _signupState extends State<signup> {
                           width: 15,
                         ),
                         Text(
-                          "Continue with google",
-                          style: TextStyle(color: Colors.white, fontSize: 17),
+                          "Continue with Google",
+                          style: TextStyle(color: Colors.black, fontSize: 17),
                         )
                       ],
                     ),
@@ -72,7 +73,7 @@ class _signupState extends State<signup> {
               ),
               Text(
                 "or",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               SizedBox(
                 height: 15,
@@ -116,7 +117,7 @@ class _signupState extends State<signup> {
                     height: 60,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.blueGrey),
+                        color: Colors.teal),
                     child: Center(
                       child: circular
                           ? CircularProgressIndicator()
@@ -132,7 +133,7 @@ class _signupState extends State<signup> {
               ),
               Text(
                 "If you already have an account?",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               InkWell(
                   onTap: () {
@@ -144,7 +145,7 @@ class _signupState extends State<signup> {
                   child: Text(
                     "Login",
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.teal,
                         fontSize: 16,
                         fontWeight: FontWeight.bold),
                   ))
@@ -165,11 +166,11 @@ class _signupState extends State<signup> {
         obscureText: obscuretext,
         style: TextStyle(
           fontSize: 17,
-          color: Colors.white,
+          color: Colors.black,
         ),
         decoration: InputDecoration(
             labelText: labelText,
-            labelStyle: TextStyle(fontSize: 17, color: Colors.white),
+            labelStyle: TextStyle(fontSize: 17, color: Colors.black),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(width: 1.5, color: Colors.blue)),

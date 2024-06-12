@@ -17,22 +17,24 @@ class _loginpageState extends State<loginpage> {
   TextEditingController _passwordController = TextEditingController();
   bool circular = false;
   Authclass authclass = Authclass();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.black,
+          color: Colors.white,
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Image.asset('assets/bear_icon.png', height: 100, width: 100),
               Text(
                 "Login",
                 style: TextStyle(
                     fontSize: 35,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold),
               ),
               SizedBox(
@@ -46,7 +48,7 @@ class _loginpageState extends State<loginpage> {
                   width: MediaQuery.of(context).size.width - 60,
                   height: 60,
                   child: Card(
-                    color: Colors.black,
+                    color: Colors.white,
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -58,8 +60,8 @@ class _loginpageState extends State<loginpage> {
                           width: 15,
                         ),
                         Text(
-                          "Continue with google",
-                          style: TextStyle(color: Colors.white, fontSize: 17),
+                          "Continue with Google",
+                          style: TextStyle(color: Colors.black, fontSize: 17),
                         )
                       ],
                     ),
@@ -71,7 +73,7 @@ class _loginpageState extends State<loginpage> {
               ),
               Text(
                 "or",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               SizedBox(
                 height: 15,
@@ -115,7 +117,7 @@ class _loginpageState extends State<loginpage> {
                     height: 60,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.blueGrey),
+                        color: Colors.teal),
                     child: Center(
                       child: circular
                           ? CircularProgressIndicator()
@@ -131,22 +133,21 @@ class _loginpageState extends State<loginpage> {
               ),
               Text(
                 "If you don't have an account?",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               InkWell(
-                onTap: (){
+                onTap: () {
                   Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (builder) => signup()),
-                        (route) => false);
+                      context,
+                      MaterialPageRoute(builder: (builder) => signup()),
+                      (route) => false);
                 },
-                  child: Text(
-                "Sign Up",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ))
+                child: Text(
+                  "Sign Up",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.teal),
+                ),
+              )
             ],
           ),
         ),
@@ -164,11 +165,11 @@ class _loginpageState extends State<loginpage> {
         obscureText: obscuretext,
         style: TextStyle(
           fontSize: 17,
-          color: Colors.white,
+          color: Colors.black,
         ),
         decoration: InputDecoration(
             labelText: labelText,
-            labelStyle: TextStyle(fontSize: 17, color: Colors.white),
+            labelStyle: TextStyle(fontSize: 17, color: Colors.black),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(width: 1.5, color: Colors.blue)),

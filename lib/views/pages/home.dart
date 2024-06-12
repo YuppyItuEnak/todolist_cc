@@ -7,7 +7,7 @@ import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/updateForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
-import 'package:firebase_auth/firebase_auth.dart';  
+import 'package:firebase_auth/firebase_auth.dart';
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -25,13 +25,13 @@ class _homepageState extends State<homepage> {
     return tasks.where((task) {
       DateTime taskDate = task['dateTime'];
       return taskDate.year == _selectedDate.year &&
-             taskDate.month == _selectedDate.month &&
-             taskDate.day == _selectedDate.day;
+          taskDate.month == _selectedDate.month &&
+          taskDate.day == _selectedDate.day;
     }).toList();
   }
 
   Future<void> _deleteTask(String taskId) async {
-    User? user = FirebaseAuth.instance.currentUser;  
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       showDialog(
         context: context,
@@ -68,23 +68,30 @@ class _homepageState extends State<homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           "PriorityPal",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.teal,
+            fontSize: 24,
+          ),
         ),
         backgroundColor: Colors.white,
+        elevation: 1,
         actions: [
           IconButton(
-              onPressed: () async {
-                await authclass.logout();
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (builder) => signup()),
-                    (route) => false);
-              },
-              icon: Icon(Icons.logout))
+            onPressed: () async {
+              await authclass.logout();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (builder) => signup()),
+                  (route) => false);
+            },
+            icon: Icon(Icons.logout, color: Colors.teal),
+          )
         ],
       ),
       body: Padding(
@@ -102,12 +109,16 @@ class _homepageState extends State<homepage> {
                     children: [
                       Text(
                         DateFormat.yMMMMd().format(_selectedDate),
-                        style: TextStyle(fontSize: 20, color: Colors.grey),
+                        style: TextStyle(fontSize: 20, color: Colors.grey[700]),
                       ),
+                      SizedBox(height: 5),
                       Text(
-                        "Today's Task",
+                        "Today's Tasks",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 22),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          color: Colors.teal,
+                        ),
                       )
                     ],
                   ),
@@ -120,45 +131,62 @@ class _homepageState extends State<homepage> {
                         (route) => false);
                   },
                   child: Container(
-                    width: 100,
-                    height: 60,
+                    width: 120,
+                    height: 50,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.blueAccent),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.teal,
+                    ),
                     child: Center(
                       child: Text(
                         "+ Add Task",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
                 )
               ],
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
-                    child: DatePicker(
-                  DateTime.now(),
-                  height: 100,
-                  width: 60,
-                  initialSelectedDate: _selectedDate,
-                  selectionColor: Colors.teal,
-                  selectedTextColor: Colors.white,
-                  dateTextStyle: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.w600),
-                  dayTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  monthTextStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  onDateChange: (date) {
-                    setState(() {
-                      _selectedDate = date;
-                    });
-                  },
-                )),
+                  child: DatePicker(
+                    DateTime.now(),
+                    height: 100,
+                    width: 70,
+                    initialSelectedDate: _selectedDate,
+                    selectionColor: Colors.teal,
+                    selectedTextColor: Colors.white,
+                    dateTextStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[300],
+                    ),
+                    dayTextStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[300],
+                    ),
+                    monthTextStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[300],
+                    ),
+                    onDateChange: (date) {
+                      setState(() {
+                        _selectedDate = date;
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: taskService.getTasks(),
@@ -167,7 +195,12 @@ class _homepageState extends State<homepage> {
                     return Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData) {
-                    return Center(child: Text('No tasks found', style: TextStyle(color: Colors.black),));
+                    return Center(
+                      child: Text(
+                        'No tasks found',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                    );
                   }
                   final tasks = snapshot.data!.docs.map((doc) {
                     return {
@@ -185,12 +218,19 @@ class _homepageState extends State<homepage> {
                     itemBuilder: (context, index) {
                       final task = filteredTasks[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
+                        padding: const EdgeInsets.only(bottom: 10.0),
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,35 +238,33 @@ class _homepageState extends State<homepage> {
                               Text(
                                 task['title'],
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.teal,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(height: 8),
                               Text(
                                 task['description'],
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.white,
+                                  color: Colors.grey[800],
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(height: 8),
                               Text(
-                                DateFormat.yMMMMd()
-                                    .add_jm()
-                                    .format(task['dateTime']),
+                                DateFormat.yMMMMd().add_jm().format(task['dateTime']),
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.white,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.white),
+                                    icon: Icon(Icons.edit, color: Colors.teal),
                                     onPressed: () {
                                       Navigator.push(
                                         context,
@@ -242,7 +280,7 @@ class _homepageState extends State<homepage> {
                                     },
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.delete, color: Colors.white),
+                                    icon: Icon(Icons.delete, color: Colors.red),
                                     onPressed: () async {
                                       await _deleteTask(task['id']);
                                     },

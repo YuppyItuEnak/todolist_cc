@@ -77,13 +77,15 @@ class _AddFormState extends State<AddForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           "Add Task",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
         ),
         backgroundColor: Colors.white,
+        elevation: 1,
         leading: GestureDetector(
           onTap: () {
             Navigator.pushAndRemoveUntil(
@@ -94,51 +96,56 @@ class _AddFormState extends State<AddForm> {
           child: Icon(
             Icons.arrow_back_ios,
             size: 20,
+            color: Colors.teal,
           ),
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.only(left: 20, right: 20),
+        padding: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20),
+                // Image.asset(
+                //   'assets/bear_icon.png', 
+                //   height: 100,
+                //   width: 100,
+                // ),
+                SizedBox(height: 20),
                 TextFormField(
                   controller: _titleController,
-                  style: TextStyle(
-                    fontSize: 17,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 17, color: Colors.black),
                   decoration: InputDecoration(
-                      labelText: 'Title',
-                      labelStyle: TextStyle(fontSize: 17, color: Colors.black),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                              BorderSide(width: 1.5, color: Colors.grey)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                              BorderSide(width: 1, color: Colors.black))),
+                    labelText: 'Title',
+                    labelStyle: TextStyle(fontSize: 17, color: Colors.black),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(width: 1.5, color: Colors.grey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(width: 1, color: Colors.black),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _descController,
                   maxLines: 3,
                   decoration: InputDecoration(
-                      labelText: 'Description',
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                              BorderSide(width: 1.5, color: Colors.grey)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                              BorderSide(width: 1, color: Colors.black))),
+                    labelText: 'Description',
+                    labelStyle: TextStyle(fontSize: 17, color: Colors.black),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(width: 1.5, color: Colors.grey),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(width: 1, color: Colors.black),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 20),
                 Row(
@@ -146,11 +153,15 @@ class _AddFormState extends State<AddForm> {
                     Expanded(
                       child: Text(
                         'Date: ${DateFormat('yMd').format(_selectedDate)}',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                     TextButton(
                       onPressed: () => _selectDate(context),
-                      child: Text('Choose Date'),
+                      child: Text(
+                        'Choose Date',
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
@@ -160,19 +171,23 @@ class _AddFormState extends State<AddForm> {
                     Expanded(
                       child: Text(
                         'Time: ${_selectedTime.format(context)}',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                     TextButton(
                       onPressed: () => _selectTime(context),
-                      child: Text('Choose Time'),
+                      child: Text(
+                        'Choose Time',
+                        style: TextStyle(color: Colors.teal),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0),
+                SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: _saveTask,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6200EE), // Background color
+                    backgroundColor: Colors.teal, // Background color
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -180,7 +195,7 @@ class _AddFormState extends State<AddForm> {
                   ),
                   child: Text(
                     'Submit',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
               ],
