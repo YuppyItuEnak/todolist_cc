@@ -7,6 +7,7 @@ import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/updateForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';  // Tambahkan impor ini
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -27,6 +28,18 @@ class _homepageState extends State<homepage> {
              taskDate.month == _selectedDate.month &&
              taskDate.day == _selectedDate.day;
     }).toList();
+  }
+
+  Future<void> _deleteTask(String taskId) async {
+    User? user = FirebaseAuth.instance.currentUser;  // Pastikan impor firebase_auth sudah dilakukan
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .collection('Tasks')
+          .doc(taskId)
+          .delete();
+    }
   }
 
   @override
@@ -68,7 +81,8 @@ class _homepageState extends State<homepage> {
                         DateFormat.yMMMMd().format(_selectedDate),
                         style: TextStyle(fontSize: 20, color: Colors.grey),
                       ),
-                      Text( "Today's Task",
+                      Text(
+                        "Today's Task",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 22),
                       )
@@ -134,7 +148,7 @@ class _homepageState extends State<homepage> {
                   }
                   final tasks = snapshot.data!.docs.map((doc) {
                     return {
-                      // 'id': doc.id,
+                      'id': doc.id,
                       'title': doc['title'],
                       'description': doc['description'],
                       'dateTime': (doc['dateTime'] as Timestamp).toDate(),
@@ -185,24 +199,32 @@ class _homepageState extends State<homepage> {
                                 ),
                               ),
                               SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.white),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => UpdateForm(
-                                          taskId: task['id'],
-                                          currentTitle: task['title'],
-                                          currentDescription: task['description'],
-                                          currentDateTime: task['dateTime'],
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.white),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => UpdateForm(
+                                            taskId: task['id'],
+                                            currentTitle: task['title'],
+                                            currentDescription: task['description'],
+                                            currentDateTime: task['dateTime'],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.white),
+                                    onPressed: () async {
+                                      await _deleteTask(task['id']);
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
