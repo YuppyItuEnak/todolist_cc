@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:todolist_cc/services/Auth_Service.dart';
 import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
+import 'package:todolist_cc/views/pages/updateForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
 
 class homepage extends StatefulWidget {
@@ -133,6 +134,7 @@ class _homepageState extends State<homepage> {
                   }
                   final tasks = snapshot.data!.docs.map((doc) {
                     return {
+                      // 'id': doc.id,
                       'title': doc['title'],
                       'description': doc['description'],
                       'dateTime': (doc['dateTime'] as Timestamp).toDate(),
@@ -180,6 +182,26 @@ class _homepageState extends State<homepage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: IconButton(
+                                  icon: Icon(Icons.edit, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => UpdateForm(
+                                          taskId: task['id'],
+                                          currentTitle: task['title'],
+                                          currentDescription: task['description'],
+                                          currentDateTime: task['dateTime'],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
