@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 
-
-class profilePage extends StatefulWidget {
-  const profilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<profilePage> createState() => _profilePage();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _profilePage extends State<profilePage> {
-  
-
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(
+      appBar: AppBar(
         title: Text('Profile Page'),
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -43,12 +41,27 @@ class _profilePage extends State<profilePage> {
               ),
             ),
             SizedBox(height: 16),
-            Text(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Text(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[800],
+                ),
               ),
             ),
             SizedBox(height: 16),
@@ -57,11 +70,23 @@ class _profilePage extends State<profilePage> {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal, // Corrected property
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: Text('Follow'),
                 ),
                 SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal, // Corrected property
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: Text('Message'),
                 ),
               ],
@@ -69,6 +94,7 @@ class _profilePage extends State<profilePage> {
           ],
         ),
       ),
+      backgroundColor: Colors.grey[200],
     );
   }
 }
