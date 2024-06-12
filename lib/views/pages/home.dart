@@ -7,7 +7,7 @@ import 'package:todolist_cc/services/Task_Service.dart';
 import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/updateForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // Tambahkan impor ini
+import 'package:firebase_auth/firebase_auth.dart';  
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -31,14 +31,37 @@ class _homepageState extends State<homepage> {
   }
 
   Future<void> _deleteTask(String taskId) async {
-    User? user = FirebaseAuth.instance.currentUser;  // Pastikan impor firebase_auth sudah dilakukan
+    User? user = FirebaseAuth.instance.currentUser;  
     if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(user.uid)
-          .collection('Tasks')
-          .doc(taskId)
-          .delete();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Confirm Deletion"),
+            content: Text("Are you sure you want to delete this task?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await FirebaseFirestore.instance
+                      .collection('Users')
+                      .doc(user.uid)
+                      .collection('Tasks')
+                      .doc(taskId)
+                      .delete();
+                  Navigator.of(context).pop();
+                },
+                child: Text("Delete"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 

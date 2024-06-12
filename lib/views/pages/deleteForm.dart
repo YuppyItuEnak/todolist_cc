@@ -54,6 +54,33 @@ class _AddFormState extends State<AddForm> {
     }
   }
 
+  void _confirmDeleteTask() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Delete"),
+          content: Text("Are you sure you want to delete this task?"),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Delete"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteTask();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _saveTask() async {
     if (_formKey.currentState!.validate()) {
       User? user = FirebaseAuth.instance.currentUser;
@@ -146,7 +173,7 @@ class _AddFormState extends State<AddForm> {
               if (widget.taskId != null) ...[
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _deleteTask,
+                  onPressed: _confirmDeleteTask,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
