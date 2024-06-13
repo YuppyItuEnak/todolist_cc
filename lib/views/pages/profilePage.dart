@@ -24,8 +24,25 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _updateUserName(String newName) async {
+    final user = firebaseAuth.currentUser;
+    if (user != null) {
+      try {
+        await user.updateDisplayName(newName);
+        await user.reload();
+        setState(() {}); // Refresh UI to reflect the updated name
+      } catch (e) {
+        final snackbar = SnackBar(content: Text('Error: ${e.toString()}'));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = firebaseAuth.currentUser;
+    final TextEditingController _nameController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile Page'),
@@ -42,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 16),
             Text(
-              'John Doe',
+              user?.displayName ?? 'No Name',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -50,11 +67,37 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 8),
             Text(
-              'Mobile Developer',
+              user?.email ?? 'No Email',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
               ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Enter new name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                if (_nameController.text.isNotEmpty) {
+                  await _updateUserName(_nameController.text);
+                  _nameController.clear(); // Clear the input field
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text('Update Name'),
             ),
             SizedBox(height: 16),
             Container(
