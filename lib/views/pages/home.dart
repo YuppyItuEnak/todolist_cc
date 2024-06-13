@@ -8,6 +8,7 @@ import 'package:todolist_cc/views/pages/addForm.dart';
 import 'package:todolist_cc/views/pages/updateForm.dart';
 import 'package:todolist_cc/views/pages/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:todolist_cc/views/pages/profilePage.dart'; // Import profilePage
 
 class homepage extends StatefulWidget {
   const homepage({super.key});
@@ -20,6 +21,7 @@ class _homepageState extends State<homepage> {
   Authclass authclass = Authclass();
   DateTime _selectedDate = DateTime.now();
   TaskService taskService = TaskService();
+  int _selectedIndex = 0;
 
   List<Map<String, dynamic>> _filterTasks(List<Map<String, dynamic>> tasks) {
     return tasks.where((task) {
@@ -61,6 +63,19 @@ class _homepageState extends State<homepage> {
             ],
           );
         },
+      );
+    }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
       );
     }
   }
@@ -298,6 +313,21 @@ class _homepageState extends State<homepage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal,
+        onTap: _onItemTapped,
       ),
     );
   }
